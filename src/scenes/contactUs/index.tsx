@@ -1,13 +1,16 @@
+"use client";
 import { useForm } from "react-hook-form";
-import { SelectedPage } from "@/shared/types";
+import { EnvVariable, SelectedPage } from "@/shared/types";
 import { motion } from "framer-motion";
 import ContactUsPageGraphic from "@/assets/ContactUsPageGraphic.jpeg";
 import HText from "@/shared/HText";
-import emailjs from "@emailjs/browser";
+// import emailjs from "@emailjs/browser";
+import { useRef } from "react";
+import axios from "axios";
 
 type FormData = {
     name: string;
-    email: string;
+    email: string; //from email
     number: string;
     message: string;
 };
@@ -15,40 +18,72 @@ type FormData = {
 type Props = {
     setSelectedPage: (value: SelectedPage) => void;
 };
+// Access environment variables as an object using the EnvVariable type
+const envVariables: EnvVariable = {
+    VITE_EMAIL_SERVICE_ID: import.meta.env.VITE_EMAIL_SERVICE_ID!,
+    VITE_EMAIL_TEMPLATE_ID: import.meta.env.VITE_EMAIL_TEMPLATE_ID!,
+    VITE_EMAIL_PUBLIC_KEY: import.meta.env.VITE_EMAIL_PUBLIC_KEY!,
+    VITE_BACKEND_URL: import.meta.env.VITE_BACKEND_URL!,
+};
 
 const ContactUs = ({ setSelectedPage }: Props) => {
-    const inputStyles = `mb-5 w-full rounded-lg bg-primary-300 px-5 py-3 placeholder-white`;
+    const inputStyles = `mb-5 w-full rounded-lg bg-primary-300 px-5 py-3 placeholder-black text-black outline-none`;
 
     const {
         register,
         handleSubmit,
         formState: { errors },
+        reset,
     } = useForm<FormData>();
 
-    const onSubmit = (data: FormData) => {
-        const { number, message } = data;
+    const form = useRef<HTMLFormElement>(null);
 
-        emailjs
-            .sendForm(
-                `${process.env.EMAIL_SERVICE_ID}`,
-                "YOUR_TEMPLATE_ID",
-                form.current,
+    const onSubmit = async (data: FormData) => {
+        console.log(data);
+        // try {
+        //     if (form.current) {
+        //         await emailjs
+        //             .sendForm(
+        //                 envVariables.VITE_EMAIL_SERVICE_ID, // EmailJS service ID from envVariables
+        //                 envVariables.VITE_EMAIL_TEMPLATE_ID, // EmailJS template ID from envVariables
+        //                 form.current, // Use the form ref
+        //                 envVariables.VITE_EMAIL_PUBLIC_KEY // Public key for EmailJS
+        //             )
+        //             .then(() => {
+        //                 reset();
+        //             });
+        //         console.log("Email sent successfully!");
+        //     } else {
+        //         console.error("Form reference is null.");
+        //     }
+        //     console.log("Email sent successfully!");
+        // } catch (error) {
+        //     console.error("Failed to send email:", error);
+        // }
+
+        try {
+            const res = await axios.post(
+                `${envVariables.VITE_BACKEND_URL}api/send-mail`,
                 {
-                    publicKey: "YOUR_PUBLIC_KEY",
-                }
-            )
-            .then(
-                () => {
-                    console.log("SUCCESS!");
-                },
-                (error) => {
-                    console.log("FAILED...", error.text);
+                    name: data.name,
+                    email: data.email,
+                    number: data.number,
+                    message: data.message,
+
+                    // data: data,
                 }
             );
+
+            console.log(res);
+
+            reset();
+        } catch (error) {
+            console.error("Failed to send email:", error);
+        }
     };
 
     return (
-        <section id="contactus" className="mx-auto w-5/6 pt-24 pb-32">
+        <section id="contactus" className="mx-auto w-5/6 pt-24 pb-32 ">
             <motion.div
                 onViewportEnter={() => setSelectedPage(SelectedPage.ContactUs)}
             >
@@ -89,7 +124,7 @@ const ContactUs = ({ setSelectedPage }: Props) => {
                             visible: { opacity: 1, y: 0 },
                         }}
                     >
-                        <form onSubmit={handleSubmit(onSubmit)}>
+                        <form ref={form} onSubmit={handleSubmit(onSubmit)}>
                             <input
                                 className={inputStyles}
                                 type="text"

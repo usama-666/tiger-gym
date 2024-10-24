@@ -19,7 +19,7 @@ const Home = ({ setSelectedPage }: Props) => {
     return (
         <section
             id="home"
-            className="gap-16 bg-gray-20 py-10 md:h-full md:pb-0 pt-20"
+            className="gap-16 bg-gray-20 md:h-full md:pb-0 pt-20 "
         >
             {/* IMAGE AND MAIN HEADER */}
             <motion.div
@@ -96,7 +96,7 @@ const Home = ({ setSelectedPage }: Props) => {
 
             {/* SPONSORS */}
             {isAboveMediumScreens && (
-                <div className="h-[150px] w-full bg-primary-100 py-10 z-10">
+                <div className="h-[150px] w-full  py-10 z-10  bg-secondary-500">
                     <div className="mx-auto w-5/6">
                         <div className="flex w-3/5 items-center justify-between gap-8">
                             <img alt="redbull-sponsor" src={SponsorRedBull} />

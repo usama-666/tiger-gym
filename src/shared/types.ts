@@ -16,3 +16,10 @@ export interface ClassType {
     description?: string;
     image: string;
 }
+
+export type EnvVariable = {
+    VITE_EMAIL_SERVICE_ID: string;
+    VITE_EMAIL_TEMPLATE_ID: string;
+    VITE_EMAIL_PUBLIC_KEY: string;
+    VITE_BACKEND_URL: string;
+};
